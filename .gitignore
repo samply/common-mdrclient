@@ -1,0 +1,10 @@
+/.classpath
+/.externalToolBuilders
+/.metadata
+/.project
+/.settings
+/build
+/target
+*.iml
+/log/
+/.idea/
