@@ -10,6 +10,7 @@ public class DataElement {
   private Identification identification;
   private List<Slot> slots;
   private List<Designation> designations;
+  private List<Concept> concepts;
   private Validations validation;
 
   public Identification getIdentification() {
@@ -34,6 +35,14 @@ public class DataElement {
 
   public void setDesignations(List<Designation> designations) {
     this.designations = designations;
+  }
+
+  public List<Concept> getConcepts() {
+    return concepts;
+  }
+
+  public void setConcepts(List<Concept> concepts) {
+    this.concepts = concepts;
   }
 
   public Validations getValidation() {
