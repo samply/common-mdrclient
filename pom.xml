@@ -54,7 +54,7 @@
   </distributionManagement>
 
   <properties>
-    <commons-lang3.version>3.8.1</commons-lang3.version>
+    <commons-lang3.version>3.12.0</commons-lang3.version>
     <jersey.version>1.19.4</jersey.version>
     <guava.version>24.0-jre</guava.version>
     <slf4j-api.version>1.7.25</slf4j-api.version>
