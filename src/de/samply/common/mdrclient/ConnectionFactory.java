@@ -1,8 +1,6 @@
 
 package de.samply.common.mdrclient;
 
-import com.sun.jersey.client.urlconnection.HttpURLConnectionFactory;
-import com.sun.jersey.core.util.Base64;
 import java.io.IOException;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
@@ -10,13 +8,14 @@ import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.URL;
+import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * HTTP connection factory with proxy settings.
  */
-public class ConnectionFactory implements HttpURLConnectionFactory {
+public class ConnectionFactory implements HttpUrlConnectorProvider.ConnectionFactory {
 
   /**
    * The proxy settings.
@@ -174,7 +173,7 @@ public class ConnectionFactory implements HttpURLConnectionFactory {
   }
 
   @Override
-  public final HttpURLConnection getHttpURLConnection(final URL url) throws IOException {
+  public final HttpURLConnection getConnection(final URL url) throws IOException {
     String protocol = url.getProtocol();
     String encoded = null;
 
@@ -226,7 +225,8 @@ public class ConnectionFactory implements HttpURLConnectionFactory {
         return new PasswordAuthentication(username, password.toCharArray());
       }
     });
-
-    return new String(Base64.encode(new String(username + ":" + password).getBytes()));
+    return new String(
+        java.util.Base64.getEncoder().encode(new String(username + ":" + password)
+            .getBytes()));
   }
 }

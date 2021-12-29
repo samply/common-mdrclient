@@ -3,12 +3,6 @@ package de.samply.common.mdrclient;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.client.urlconnection.URLConnectionClientHandler;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 import de.samply.common.mdrclient.domain.Catalogue;
 import de.samply.common.mdrclient.domain.Code;
 import de.samply.common.mdrclient.domain.DataElement;
@@ -21,16 +15,19 @@ import de.samply.common.mdrclient.domain.Result;
 import de.samply.common.mdrclient.domain.ResultList;
 import de.samply.common.mdrclient.domain.Slot;
 import de.samply.common.mdrclient.domain.Validations;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.UriBuilder;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriBuilder;
+import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -285,7 +282,8 @@ public class MdrClient {
    * @throws ExecutionException     if there is an execution error
    */
   protected final String getJsonLabel(final String memberId, final String languageCode,
-      final EnumElementType enumElementType, final String accessToken, final String userAuthId)
+                                      final EnumElementType enumElementType,
+      final String accessToken, final String userAuthId)
       throws MdrConnectionException, ExecutionException {
     String path = "";
     if (enumElementType.equals(EnumElementType.RECORD)) {
@@ -607,7 +605,7 @@ public class MdrClient {
       throws MdrConnectionException {
     String string = null;
     try {
-      string = getService().path(path).accept(MediaType.APPLICATION_JSON)
+      string = getService().path(path).request(MediaType.APPLICATION_JSON)
           .header(HttpHeaders.ACCEPT_LANGUAGE, languageCode).get(String.class);
     } catch (Exception e) {
       throw new MdrConnectionException(e.getMessage());
@@ -631,7 +629,7 @@ public class MdrClient {
       throws MdrConnectionException {
     String string = null;
     try {
-      string = getService().path(path).accept(MediaType.APPLICATION_JSON)
+      string = getService().path(path).request(MediaType.APPLICATION_JSON)
           .header(HttpHeaders.ACCEPT_LANGUAGE, languageCode)
           .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).get(String.class);
     } catch (Exception e) {
@@ -1159,7 +1157,7 @@ public class MdrClient {
     path = path + SEARCH;
 
     json = getService().path(path.toString()).queryParam("query", searchText)
-        .accept(MediaType.APPLICATION_JSON)
+        .request(MediaType.APPLICATION_JSON)
         .header(HttpHeaders.ACCEPT_LANGUAGE, languageCode)
         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).get(String.class);
 
@@ -1187,20 +1185,16 @@ public class MdrClient {
       final String accessToken) throws MdrConnectionException, MdrInvalidResponseException,
       ExecutionException {
 
-    MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
     List<String> typeList = new ArrayList<String>();
     typeList.add(TYPE_DATAELEMENT);
     typeList.add(TYPE_DATAELEMENTGROUP);
 
-    queryParams.add("query", searchText);
-    queryParams.add("status", STATUS_RELEASED);
-    queryParams.put("type", typeList);
-
     String json = null;
     String path = SEARCH + PATH_SEPARATOR + SEARCH_LOCAL;
     json = getService().path(path.toString())
-        .queryParams(queryParams)
-        .accept(MediaType.APPLICATION_JSON)
+        .queryParam("query", searchText).queryParam("status", STATUS_RELEASED)
+        .queryParam("type", typeList)
+        .request(MediaType.APPLICATION_JSON)
         .header(HttpHeaders.ACCEPT_LANGUAGE, languageCode)
         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).get(String.class);
 
@@ -1817,7 +1811,7 @@ public class MdrClient {
     String json = null;
     String path = REPRESENTATIONS;
     json = getService().path(path.toString()).queryParam("urn", mdrDataElementId)
-        .accept(MediaType.APPLICATION_JSON)
+        .request(MediaType.APPLICATION_JSON)
         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).get(String.class);
 
     Gson gson = new Gson();
@@ -1893,21 +1887,20 @@ public class MdrClient {
   }
 
   /**
-   * Get a {@link WebResource} for the MDR Client. It is always the same for all requests.
+   * Get a {@link WebTarget} for the MDR Client. It is always the same for all requests.
    *
-   * @return the {@link WebResource} for the MDR Client
+   * @return the {@link WebTarget} for the MDR Client
    */
-  private WebResource getService() {
+  private WebTarget getService() {
     // If the constructor was called with a provided jersey client from another application
     // use that one. Otherwise create a new one.
     if (jerseyClient != null) {
-      return jerseyClient.resource(getBaseUri());
+      return jerseyClient.target(getBaseUri());
     } else {
-      URLConnectionClientHandler cc = new URLConnectionClientHandler(getConnectionFactory());
 
-      ClientConfig config = new DefaultClientConfig();
-      Client client = new Client(cc, config);
-      WebResource service = client.resource(getBaseUri());
+      ClientConfig config = new ClientConfig();
+      Client client = ClientBuilder.newClient(config);
+      WebTarget service = client.target(getBaseUri());
       return service;
     }
   }
