@@ -1,8 +1,8 @@
 
 package de.samply.common.mdrclient;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,10 +39,13 @@ public class MdrClientTest {
    * The language to use on the MDR calls.
    */
   private static final String MDR_LANGUAGE = "de";
+
   /**
    * MDR client initialisation for a test server.
+   *
+   * TODO: do not use external dependencies in unit tests
    */
-  private MdrClient mdrClient = new MdrClient("https://mdr.ccpit.dktk.dkfz.de/v3/api/mdr/");
+  private final MdrClient mdrClient = new MdrClient("https://mdr.ccpit.dktk.dkfz.de/v3/api/mdr/");
 
   /**
    * Test a valid request.
@@ -87,7 +90,6 @@ public class MdrClientTest {
       fail("An exception occurred for a valid request.");
     }
   }
-
 
   /**
    * Test a valid request.
@@ -149,7 +151,7 @@ public class MdrClientTest {
     }
   }
 
-  private final void visitCodeNode(Code code, Catalogue catalogue) {
+  private void visitCodeNode(Code code, Catalogue catalogue) {
     String DKTK_SEARCH_SLOTNAME = "DKTK_SEARCH";
     logger.info("#########");
     logger.info(code.getIdentification().getUrn());
@@ -314,7 +316,5 @@ public class MdrClientTest {
     } catch (MdrConnectionException | MdrInvalidResponseException | ExecutionException e) {
       fail("An Exception was caught: " + e.getMessage());
     }
-
   }
-
 }
