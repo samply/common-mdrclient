@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>mdrclient</artifactId>
-  <version>3.1.0-SNAPSHOT</version>
+  <version>3.1.0</version>
 
   <name>Samply MDR Client</name>
   <description>Samply.Common.MDRClient is a Java library which provides convenient methods to access
